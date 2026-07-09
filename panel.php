@@ -26,7 +26,6 @@ $rolSeguro = htmlspecialchars(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Panel privado</title>
 </head>
 <body>
@@ -47,6 +46,10 @@ $rolSeguro = htmlspecialchars(
 
         <p>
             <a href="usuarios.php">Gestionar usuarios</a>
+        </p>
+
+        <p>
+            <a href="productos.php">Gestionar productos</a>
         </p>
 
     <?php } ?>
