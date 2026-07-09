@@ -16,12 +16,26 @@ if (($_SESSION["rol"] ?? "") !== "Administrador") {
     exit("No tienes permiso para acceder a esta página.");
 }
 
-// Obtener productos de la base de datos.
-$consulta = $pdo->query(
-    "SELECT id, nombre, descripcion, precio, stock, creado_en
-     FROM productos
-     ORDER BY id DESC"
-);
+$busqueda = trim($_GET["busqueda"] ?? "");
+
+if ($busqueda !== "") {
+    $consulta = $pdo->prepare(
+        "SELECT id, nombre, descripcion, precio, stock, creado_en
+         FROM productos
+         WHERE nombre LIKE :busqueda
+         ORDER BY id DESC"
+    );
+
+    $consulta->execute([
+        "busqueda" => "%" . $busqueda . "%"
+    ]);
+} else {
+    $consulta = $pdo->query(
+        "SELECT id, nombre, descripcion, precio, stock, creado_en
+         FROM productos
+         ORDER BY id DESC"
+    );
+}
 
 $productos = $consulta->fetchAll();
 
@@ -37,6 +51,26 @@ $productos = $consulta->fetchAll();
 <body>
 
     <h1>Productos</h1>
+    
+    <form method="GET">
+
+    <label for="busqueda">Buscar producto:</label>
+
+    <input
+        type="text"
+        id="busqueda"
+        name="busqueda"
+        value="<?php echo htmlspecialchars($busqueda, ENT_QUOTES, "UTF-8"); ?>"
+        placeholder="Ejemplo: teclado"
+    >
+
+    <button type="submit">Buscar</button>
+
+    <a href="productos.php">Limpiar</a>
+
+</form>
+
+<br>
 
     <p>
         <a href="panel.php">Volver al panel</a>
