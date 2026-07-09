@@ -14,12 +14,7 @@ $opciones = [
 ];
 
 try {
-    $pdo = new PDO(
-        $dsn,
-        $usuarioBD,
-        $contrasenaBD,
-        $opciones
-    );
+    $pdo = new PDO($dsn,$usuarioBD,$contrasenaBD,$opciones);
 } catch (PDOException $error) {
     exit("Error de conexión: " . $error->getMessage());
 }

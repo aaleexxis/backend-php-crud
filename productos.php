@@ -3,15 +3,16 @@
 session_start();
 
 require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/funciones.php";
 
 // Comprobar que el usuario haya iniciado sesión.
-if (!isset($_SESSION["usuario_id"])) {
+if (!estaLogueado()) {
     header("Location: login.php");
     exit;
 }
 
-// Solo administradores pueden gestionar productos.
-if (($_SESSION["rol"] ?? "") !== "Administrador") {
+//Comprobar que solo puede acceder el administrador
+if (!esAdministrador()) {
     http_response_code(403);
     exit("No tienes permiso para acceder a esta página.");
 }
@@ -56,13 +57,7 @@ $productos = $consulta->fetchAll();
 
     <label for="busqueda">Buscar producto:</label>
 
-    <input
-        type="text"
-        id="busqueda"
-        name="busqueda"
-        value="<?php echo htmlspecialchars($busqueda, ENT_QUOTES, "UTF-8"); ?>"
-        placeholder="Ejemplo: teclado"
-    >
+    <input type="text" id="busqueda" name="busqueda" value="<?php echo e($busqueda); ?>" placeholder="Ejemplo: teclado">
 
     <button type="submit">Buscar</button>
 
@@ -111,13 +106,13 @@ $productos = $consulta->fetchAll();
 
                         <td>
                             <?php
-                            echo htmlspecialchars($producto["nombre"],ENT_QUOTES,"UTF-8");
+                            echo e($producto["nombre"]);
                             ?>
                         </td>
 
                         <td>
                             <?php
-                            echo htmlspecialchars($producto["descripcion"] ?? "",ENT_QUOTES,"UTF-8");
+                            echo e($producto["descripcion"] ?? "");
                             ?>
                         </td>
 
@@ -131,7 +126,7 @@ $productos = $consulta->fetchAll();
 
                         <td>
                             <?php
-                            echo htmlspecialchars($producto["creado_en"],ENT_QUOTES,"UTF-8");
+                            echo e($producto["creado_en"]);
                             ?>
                         </td>
 
