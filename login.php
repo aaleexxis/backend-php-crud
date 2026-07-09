@@ -5,13 +5,15 @@ session_start();
 require_once __DIR__ . "/conexion.php";
 
 $error = "";
-$usuario = "";
 $mensaje = "";
+$usuario = "";
 
+// Mensaje recibido después de completar el registro.
 if (($_GET["registro"] ?? "") === "correcto") {
     $mensaje = "Registro completado. Ya puedes iniciar sesión.";
 }
 
+// Procesar el formulario.
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $usuario = trim($_POST["usuario"] ?? "");
     $contrasena = $_POST["contrasena"] ?? "";
@@ -39,6 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $usuarioEncontrado["password_hash"]
             )
         ) {
+            // Cambia el identificador de sesión después del login.
             session_regenerate_id(true);
 
             $_SESSION["usuario_id"] = $usuarioEncontrado["id"];
@@ -58,8 +61,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Inicio de sesión</title>
 </head>
+
 <body>
 
     <h1>Iniciar sesión</h1>
@@ -67,8 +73,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <form method="POST">
 
         <label for="usuario">Usuario:</label>
-
-        value="<?php echo htmlspecialchars($usuario, ENT_QUOTES, "UTF-8"); ?>"
 
         <input
             type="text"
@@ -79,13 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ENT_QUOTES,
                 "UTF-8"
             ); ?>"
-            required
-        >
-
-        <input
-            type="text"
-            id="usuario"
-            name="usuario"
+            autocomplete="username"
             required
         >
 
@@ -97,6 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             type="password"
             id="contrasena"
             name="contrasena"
+            autocomplete="current-password"
             required
         >
 
@@ -104,17 +103,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <button type="submit">Entrar</button>
 
-        <p>¿No tienes una cuenta? <a href="registro.php">Regístrate</a></p>
-
     </form>
 
     <?php if ($error !== "") { ?>
-        <p><?php echo htmlspecialchars($error, ENT_QUOTES, "UTF-8"); ?></p>
+        <p>
+            <?php
+            echo htmlspecialchars(
+                $error,
+                ENT_QUOTES,
+                "UTF-8"
+            );
+            ?>
+        </p>
     <?php } ?>
 
     <?php if ($mensaje !== "") { ?>
-    <p><?php echo $mensaje; ?></p>
-<?php } ?>
+        <p>
+            <?php
+            echo htmlspecialchars(
+                $mensaje,
+                ENT_QUOTES,
+                "UTF-8"
+            );
+            ?>
+        </p>
+    <?php } ?>
+
+    <p>
+        ¿No tienes una cuenta?
+        <a href="registro.php">Regístrate</a>
+    </p>
 
 </body>
 </html>
