@@ -11,32 +11,93 @@ if (!estaLogueado()) {
     exit;
 }
 
-//Comprobar que solo puede acceder el administrador
+// Comprobar que solo puede acceder el administrador.
 if (!esAdministrador()) {
     http_response_code(403);
     exit("No tienes permiso para acceder a esta página.");
 }
 
 $busqueda = trim($_GET["busqueda"] ?? "");
+$filtroStock = $_GET["stock"] ?? "";
+$orden = $_GET["orden"] ?? "recientes";
+$porPagina = 5;
+
+$pagina = filter_input(INPUT_GET, "pagina", FILTER_VALIDATE_INT);
+
+if ($pagina === false || $pagina === null || $pagina < 1) {
+    $pagina = 1;
+}
+
+$offset = ($pagina - 1) * $porPagina;
+
+$condiciones = [];
+$parametros = [];
 
 if ($busqueda !== "") {
-    $consulta = $pdo->prepare(
-        "SELECT id, nombre, descripcion, precio, stock, creado_en
-         FROM productos
-         WHERE nombre LIKE :busqueda
-         ORDER BY id DESC"
-    );
-
-    $consulta->execute([
-        "busqueda" => "%" . $busqueda . "%"
-    ]);
-} else {
-    $consulta = $pdo->query(
-        "SELECT id, nombre, descripcion, precio, stock, creado_en
-         FROM productos
-         ORDER BY id DESC"
-    );
+    $condiciones[] = "nombre LIKE :busqueda";
+    $parametros["busqueda"] = "%" . $busqueda . "%";
 }
+
+if ($filtroStock === "disponibles") {
+    $condiciones[] = "stock > 0";
+} elseif ($filtroStock === "agotados") {
+    $condiciones[] = "stock = 0";
+}
+$sqlConteo = "SELECT COUNT(*) FROM productos";
+
+if (count($condiciones) > 0) {
+    $sqlConteo .= " WHERE " . implode(" AND ", $condiciones);
+}
+
+$consultaConteo = $pdo->prepare($sqlConteo);
+$consultaConteo->execute($parametros);
+
+$totalProductos = (int) $consultaConteo->fetchColumn();
+
+$totalPaginas = (int) ceil($totalProductos / $porPagina);
+
+if ($totalPaginas < 1) {
+    $totalPaginas = 1;
+}
+
+if ($pagina > $totalPaginas) {
+    $pagina = $totalPaginas;
+    $offset = ($pagina - 1) * $porPagina;
+}
+
+$sql = "SELECT id, nombre, descripcion, precio, stock, creado_en
+        FROM productos";
+
+if (count($condiciones) > 0) {
+    $sql .= " WHERE " . implode(" AND ", $condiciones);
+}
+
+switch ($orden) {
+    case "nombre_asc":
+        $sql .= " ORDER BY nombre ASC";
+        break;
+
+    case "precio_asc":
+        $sql .= " ORDER BY precio ASC";
+        break;
+
+    case "precio_desc":
+        $sql .= " ORDER BY precio DESC";
+        break;
+
+    case "stock_desc":
+        $sql .= " ORDER BY stock DESC";
+        break;
+
+    default:
+        $sql .= " ORDER BY id DESC";
+        break;
+}
+
+$sql .= " LIMIT $porPagina OFFSET $offset";
+
+$consulta = $pdo->prepare($sql);
+$consulta->execute($parametros);
 
 $productos = $consulta->fetchAll();
 
@@ -52,20 +113,85 @@ $productos = $consulta->fetchAll();
 <body>
 
     <h1>Productos</h1>
-    
+
     <form method="GET">
 
-    <label for="busqueda">Buscar producto:</label>
+        <label for="busqueda">Buscar producto:</label>
 
-    <input type="text" id="busqueda" name="busqueda" value="<?php echo e($busqueda); ?>" placeholder="Ejemplo: teclado">
+        <input
+            type="text"
+            id="busqueda"
+            name="busqueda"
+            value="<?php echo e($busqueda); ?>"
+            placeholder="Ejemplo: teclado"
+        >
 
-    <button type="submit">Buscar</button>
+        <label for="stock">Stock:</label>
 
-    <a href="productos.php">Limpiar</a>
+        <select id="stock" name="stock">
+            <option value="">Todos</option>
 
-</form>
+            <option
+                value="disponibles"
+                <?php if ($filtroStock === "disponibles") { echo "selected"; } ?>
+            >
+                Disponibles
+            </option>
 
-<br>
+            <option
+                value="agotados"
+                <?php if ($filtroStock === "agotados") { echo "selected"; } ?>
+            >
+                Agotados
+            </option>
+        </select>
+
+        <label for="orden">Ordenar por:</label>
+
+<select id="orden" name="orden">
+    <option
+        value="recientes"
+        <?php if ($orden === "recientes") { echo "selected"; } ?>
+    >
+        Más recientes
+    </option>
+
+    <option
+        value="nombre_asc"
+        <?php if ($orden === "nombre_asc") { echo "selected"; } ?>
+    >
+        Nombre A-Z
+    </option>
+
+    <option
+        value="precio_asc"
+        <?php if ($orden === "precio_asc") { echo "selected"; } ?>
+    >
+        Precio menor a mayor
+    </option>
+
+    <option
+        value="precio_desc"
+        <?php if ($orden === "precio_desc") { echo "selected"; } ?>
+    >
+        Precio mayor a menor
+    </option>
+
+    <option
+        value="stock_desc"
+        <?php if ($orden === "stock_desc") { echo "selected"; } ?>
+    >
+        Más stock
+    </option>
+</select>
+
+        <button type="submit">Filtrar</button>
+
+        <a href="productos.php">Limpiar</a>
+
+    </form>
+
+    <br>
 
     <p>
         <a href="panel.php">Volver al panel</a>
@@ -99,21 +225,17 @@ $productos = $consulta->fetchAll();
                 <?php foreach ($productos as $producto) { ?>
 
                     <tr>
-                        
+
                         <td>
                             <?php echo (int) $producto["id"]; ?>
                         </td>
 
                         <td>
-                            <?php
-                            echo e($producto["nombre"]);
-                            ?>
+                            <?php echo e($producto["nombre"]); ?>
                         </td>
 
                         <td>
-                            <?php
-                            echo e($producto["descripcion"] ?? "");
-                            ?>
+                            <?php echo e($producto["descripcion"] ?? ""); ?>
                         </td>
 
                         <td>
@@ -125,9 +247,7 @@ $productos = $consulta->fetchAll();
                         </td>
 
                         <td>
-                            <?php
-                            echo e($producto["creado_en"]);
-                            ?>
+                            <?php echo e($producto["creado_en"]); ?>
                         </td>
 
                         <td>
@@ -148,6 +268,35 @@ $productos = $consulta->fetchAll();
 
             </tbody>
         </table>
+
+    <?php if ($totalPaginas > 1) { ?>
+
+        <p>
+            Páginas:
+
+            <?php for ($i = 1; $i <= $totalPaginas; $i++) { ?>
+
+                <?php
+                $url = "productos.php?" . http_build_query([
+                    "busqueda" => $busqueda,
+                    "stock" => $filtroStock,
+                    "orden" => $orden,
+                    "pagina" => $i
+                ]);
+                ?>
+
+                <?php if ($i === $pagina) { ?>
+                    <strong><?php echo $i; ?></strong>
+                <?php } else { ?>
+                    <a href="<?php echo e($url); ?>">
+                        <?php echo $i; ?>
+                    </a>
+                <?php } ?>
+
+            <?php } ?>
+        </p>
+
+    <?php } ?>
 
     <?php } ?>
 

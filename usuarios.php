@@ -3,13 +3,13 @@
 session_start();
 
 require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/funciones.php";
 
-if (!isset($_SESSION["usuario_id"])) {
-    header("Location: login.php");
-    exit;
+if (!estaLogueado()) {
+    redirigir("login.php");
 }
 
-if (($_SESSION["rol"] ?? "") !== "Administrador") {
+if (!esAdministrador()) {
     http_response_code(403);
     exit("No tienes permiso para acceder a esta página.");
 }
@@ -66,39 +66,36 @@ $usuarios = $consulta->fetchAll();
                         </td>
 
                         <td>
-                            <?php
-                            echo htmlspecialchars($usuario["usuario"],ENT_QUOTES,"UTF-8");
-                            ?>
+                            <?php echo e($usuario["usuario"]); ?>
                         </td>
 
                         <td>
-                            <?php
-                            echo htmlspecialchars($usuario["rol"],ENT_QUOTES,"UTF-8");
-                            ?>
+                            <?php echo e($usuario["rol"]); ?>
                         </td>
 
                         <td>
-                            <?php
-                            echo htmlspecialchars($usuario["creado_en"],ENT_QUOTES,"UTF-8");
-                            ?>
+                            <?php echo e($usuario["creado_en"]); ?>
                         </td>
 
                         <td>
-    <a href="editar_usuario.php?id=<?php echo (int) $usuario["id"]; ?>">
-        Editar
-    </a>
+                            <a href="editar_usuario.php?id=<?php echo (int) $usuario["id"]; ?>">
+                                Editar
+                            </a>
 
-    |
+                            |
 
-    <?php if ((int) $usuario["id"] !== (int) $_SESSION["usuario_id"]) { ?>
-        <a href="eliminar_usuario.php?id=<?php echo (int) $usuario["id"]; ?>">
-            Eliminar
-        </a>
-        
-    <?php } else { ?>
-        No puedes eliminarte
-    <?php } ?>
-</td>
+                            <?php if ((int) $usuario["id"] !== (int) $_SESSION["usuario_id"]) { ?>
+
+                                <a href="eliminar_usuario.php?id=<?php echo (int) $usuario["id"]; ?>">
+                                    Eliminar
+                                </a>
+
+                            <?php } else { ?>
+
+                                No puedes eliminarte
+
+                            <?php } ?>
+                        </td>
                     </tr>
 
                 <?php } ?>

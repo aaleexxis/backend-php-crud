@@ -2,22 +2,14 @@
 
 session_start();
 
-if (!isset($_SESSION["usuario_id"])) {
-    header("Location: login.php");
-    exit;
+require_once __DIR__ . "/funciones.php";
+
+if (!estaLogueado()) {
+    redirigir("login.php");
 }
 
-$usuarioSeguro = htmlspecialchars(
-    $_SESSION["usuario"],
-    ENT_QUOTES,
-    "UTF-8"
-);
-
-$rolSeguro = htmlspecialchars(
-    $_SESSION["rol"] ?? "Sin rol",
-    ENT_QUOTES,
-    "UTF-8"
-);
+$usuarioSeguro = e($_SESSION["usuario"] ?? "");
+$rolSeguro = e($_SESSION["rol"] ?? "Sin rol");
 
 ?>
 
@@ -42,7 +34,7 @@ $rolSeguro = htmlspecialchars(
         Tu rol es: <?php echo $rolSeguro; ?>.
     </p>
 
-    <?php if (($_SESSION["rol"] ?? "") === "Administrador") { ?>
+    <?php if (esAdministrador()) { ?>
 
         <p>
             <a href="usuarios.php">Gestionar usuarios</a>
