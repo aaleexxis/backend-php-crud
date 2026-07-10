@@ -5,10 +5,7 @@ session_start();
 require_once __DIR__ . "/conexion.php";
 require_once __DIR__ . "/funciones.php";
 
-if (!estaLogueado()) {
-    header("Location: login.php");
-    exit;
-}
+requerirLogin();
 
 $usuarioSeguro = e($_SESSION["usuario"]);
 $rolSeguro = e($_SESSION["rol"] ?? "Sin rol");

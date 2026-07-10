@@ -12,6 +12,26 @@ function esAdministrador(): bool {
     return ($_SESSION["rol"] ?? "") === "Administrador";
 }
 
+function redirigir(string $ruta): void {
+    header("Location: $ruta");
+    exit;
+}
+
+function requerirLogin(): void {
+    if (!estaLogueado()) {
+        redirigir("login.php");
+    }
+}
+
+function requerirAdministrador(): void {
+    requerirLogin();
+
+    if (!esAdministrador()) {
+        http_response_code(403);
+        exit("No tienes permiso para acceder a esta página.");
+    }
+}
+
 function generarTokenCsrf(): string {
     if (empty($_SESSION["csrf_token"])) {
         $_SESSION["csrf_token"] = bin2hex(random_bytes(32));

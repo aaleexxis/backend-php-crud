@@ -3,16 +3,11 @@
 session_start();
 
 require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/funciones.php";
 
-if (!isset($_SESSION["usuario_id"])) {
-    header("Location: login.php");
-    exit;
-}
+requerirAdministrador();
 
-if (($_SESSION["rol"] ?? "") !== "Administrador") {
-    http_response_code(403);
-    exit("No tienes permiso para acceder a esta página.");
-}
+$error = "";
 
 $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
 
@@ -38,36 +33,28 @@ if (!$producto) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $eliminacion = $pdo->prepare(
-        "DELETE FROM productos
-         WHERE id = :id"
-    );
+    $csrfToken = $_POST["csrf_token"] ?? "";
 
-    $eliminacion->execute([
-        "id" => $id
-    ]);
+    if (!verificarTokenCsrf($csrfToken)) {
+        $error = "Solicitud no válida.";
+    } else {
+        $eliminacion = $pdo->prepare(
+            "DELETE FROM productos
+             WHERE id = :id"
+        );
 
-    header("Location: productos.php");
-    exit;
+        $eliminacion->execute([
+            "id" => $id
+        ]);
+
+        header("Location: productos.php");
+        exit;
+    }
 }
 
-$nombreSeguro = htmlspecialchars(
-    $producto["nombre"],
-    ENT_QUOTES,
-    "UTF-8"
-);
-
-$descripcionSegura = htmlspecialchars(
-    $producto["descripcion"] ?? "",
-    ENT_QUOTES,
-    "UTF-8"
-);
-
-$precioSeguro = number_format(
-    (float) $producto["precio"],
-    2
-);
-
+$nombreSeguro = e($producto["nombre"]);
+$descripcionSegura = e($producto["descripcion"] ?? "");
+$precioSeguro = number_format((float) $producto["precio"], 2);
 $stockSeguro = (int) $producto["stock"];
 
 ?>
@@ -103,8 +90,20 @@ $stockSeguro = (int) $producto["stock"];
         Stock: <?php echo $stockSeguro; ?>
     </p>
 
+    <?php if ($error !== "") { ?>
+        <p><?php echo e($error); ?></p>
+    <?php } ?>
+
     <form method="POST">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="<?php echo e(generarTokenCsrf()); ?>"
+        >
+
         <button type="submit">Sí, eliminar</button>
+
     </form>
 
     <p>

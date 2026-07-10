@@ -5,17 +5,7 @@ session_start();
 require_once __DIR__ . "/conexion.php";
 require_once __DIR__ . "/funciones.php";
 
-// Comprobar que el usuario haya iniciado sesión.
-if (!estaLogueado()) {
-    header("Location: login.php");
-    exit;
-}
-
-// Comprobar que solo puede acceder el administrador.
-if (!esAdministrador()) {
-    http_response_code(403);
-    exit("No tienes permiso para acceder a esta página.");
-}
+requerirAdministrador();
 
 $busqueda = trim($_GET["busqueda"] ?? "");
 $filtroStock = $_GET["stock"] ?? "";
