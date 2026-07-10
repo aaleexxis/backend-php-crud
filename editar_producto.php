@@ -3,13 +3,14 @@
 session_start();
 
 require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/funciones.php";
 
-if (!isset($_SESSION["usuario_id"])) {
+if (!estaLogueado()) {
     header("Location: login.php");
     exit;
 }
 
-if (($_SESSION["rol"] ?? "") !== "Administrador") {
+if (!esAdministrador()) {
     http_response_code(403);
     exit("No tienes permiso para acceder a esta página.");
 }
@@ -46,12 +47,16 @@ $precio = $producto["precio"];
 $stock = $producto["stock"];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $csrfToken = $_POST["csrf_token"] ?? "";
+
     $nombre = trim($_POST["nombre"] ?? "");
     $descripcion = trim($_POST["descripcion"] ?? "");
     $precio = trim($_POST["precio"] ?? "");
     $stock = trim($_POST["stock"] ?? "");
 
-    if ($nombre === "") {
+    if (!verificarTokenCsrf($csrfToken)) {
+        $error = "Solicitud no válida.";
+    } elseif ($nombre === "") {
         $error = "El nombre del producto es obligatorio.";
     } elseif (!is_numeric($precio) || $precio < 0) {
         $error = "El precio debe ser un número válido.";
@@ -99,18 +104,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </p>
 
     <?php if ($error !== "") { ?>
-        <p>
-            <?php echo htmlspecialchars($error, ENT_QUOTES, "UTF-8"); ?>
-        </p>
+        <p><?php echo e($error); ?></p>
     <?php } ?>
 
     <?php if ($mensaje !== "") { ?>
-        <p>
-            <?php echo htmlspecialchars($mensaje, ENT_QUOTES, "UTF-8"); ?>
-        </p>
+        <p><?php echo e($mensaje); ?></p>
     <?php } ?>
 
     <form method="POST">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="<?php echo e(generarTokenCsrf()); ?>"
+        >
 
         <label for="nombre">Nombre:</label>
 
@@ -118,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             type="text"
             id="nombre"
             name="nombre"
-            value="<?php echo htmlspecialchars($nombre, ENT_QUOTES, "UTF-8"); ?>"
+            value="<?php echo e($nombre); ?>"
             required
         >
 
@@ -129,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <textarea
             id="descripcion"
             name="descripcion"
-        ><?php echo htmlspecialchars($descripcion ?? "", ENT_QUOTES, "UTF-8"); ?></textarea>
+        ><?php echo e($descripcion ?? ""); ?></textarea>
 
         <br><br>
 
@@ -141,7 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             name="precio"
             step="0.01"
             min="0"
-            value="<?php echo htmlspecialchars($precio, ENT_QUOTES, "UTF-8"); ?>"
+            value="<?php echo e($precio); ?>"
             required
         >
 
@@ -154,7 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             id="stock"
             name="stock"
             min="0"
-            value="<?php echo htmlspecialchars($stock, ENT_QUOTES, "UTF-8"); ?>"
+            value="<?php echo e($stock); ?>"
             required
         >
 

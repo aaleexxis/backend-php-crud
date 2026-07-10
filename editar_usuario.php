@@ -3,15 +3,14 @@
 session_start();
 
 require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/funciones.php";
 
-// Comprobar que haya una sesión iniciada.
-if (!isset($_SESSION["usuario_id"])) {
+if (!estaLogueado()) {
     header("Location: login.php");
     exit;
 }
 
-// Solo los administradores pueden editar usuarios.
-if (($_SESSION["rol"] ?? "") !== "Administrador") {
+if (!esAdministrador()) {
     http_response_code(403);
     exit("No tienes permiso para acceder a esta página.");
 }
@@ -19,14 +18,12 @@ if (($_SESSION["rol"] ?? "") !== "Administrador") {
 $error = "";
 $mensaje = "";
 
-// Obtener el ID enviado por la dirección.
 $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
 
 if ($id === false || $id === null || $id < 1) {
     exit("El identificador del usuario no es válido.");
 }
 
-// Buscar el usuario en la base de datos.
 $consulta = $pdo->prepare(
     "SELECT id, usuario, rol
      FROM usuarios
@@ -44,8 +41,8 @@ if (!$usuarioEncontrado) {
     exit("El usuario no existe.");
 }
 
-// Procesar el formulario.
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $csrfToken = $_POST["csrf_token"] ?? "";
     $nuevoRol = $_POST["rol"] ?? "";
 
     $rolesPermitidos = [
@@ -53,7 +50,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "Administrador"
     ];
 
-    if (!in_array($nuevoRol, $rolesPermitidos, true)) {
+    if (!verificarTokenCsrf($csrfToken)) {
+        $error = "Solicitud no válida.";
+    } elseif (!in_array($nuevoRol, $rolesPermitidos, true)) {
         $error = "El rol seleccionado no es válido.";
     } elseif ($id === (int) $_SESSION["usuario_id"]) {
         $error = "No puedes cambiar tu propio rol.";
@@ -74,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
-$nombreSeguro = htmlspecialchars($usuarioEncontrado["usuario"],ENT_QUOTES,"UTF-8");
+$nombreSeguro = e($usuarioEncontrado["usuario"]);
 
 ?>
 
@@ -82,11 +81,7 @@ $nombreSeguro = htmlspecialchars($usuarioEncontrado["usuario"],ENT_QUOTES,"UTF-8
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar usuario</title>
 </head>
 
@@ -99,30 +94,20 @@ $nombreSeguro = htmlspecialchars($usuarioEncontrado["usuario"],ENT_QUOTES,"UTF-8
     </p>
 
     <?php if ($error !== "") { ?>
-        <p>
-            <?php
-            echo htmlspecialchars(
-                $error,
-                ENT_QUOTES,
-                "UTF-8"
-            );
-            ?>
-        </p>
+        <p><?php echo e($error); ?></p>
     <?php } ?>
 
     <?php if ($mensaje !== "") { ?>
-        <p>
-            <?php
-            echo htmlspecialchars(
-                $mensaje,
-                ENT_QUOTES,
-                "UTF-8"
-            );
-            ?>
-        </p>
+        <p><?php echo e($mensaje); ?></p>
     <?php } ?>
 
     <form method="POST">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="<?php echo e(generarTokenCsrf()); ?>"
+        >
 
         <label for="rol">Rol:</label>
 
@@ -130,22 +115,14 @@ $nombreSeguro = htmlspecialchars($usuarioEncontrado["usuario"],ENT_QUOTES,"UTF-8
 
             <option
                 value="Usuario"
-                <?php
-                if ($usuarioEncontrado["rol"] === "Usuario") {
-                    echo "selected";
-                }
-                ?>
+                <?php if ($usuarioEncontrado["rol"] === "Usuario") { echo "selected"; } ?>
             >
                 Usuario
             </option>
 
             <option
                 value="Administrador"
-                <?php
-                if ($usuarioEncontrado["rol"] === "Administrador") {
-                    echo "selected";
-                }
-                ?>
+                <?php if ($usuarioEncontrado["rol"] === "Administrador") { echo "selected"; } ?>
             >
                 Administrador
             </option>
