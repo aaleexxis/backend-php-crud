@@ -175,7 +175,8 @@ Contraseña: admin123
 
 ### Login
 
-Añadir aquí captura de la pantalla de inicio de sesión.
+<img width="2560" height="1600" alt="Login" src="https://github.com/user-attachments/assets/d5b26c52-6f39-4b19-a4fb-5c0aacb87b74" />
+
 
 ### Panel privado
 
