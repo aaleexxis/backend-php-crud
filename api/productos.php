@@ -4,6 +4,17 @@ require_once __DIR__ . "/../conexion.php";
 
 header("Content-Type: application/json; charset=utf-8");
 
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    http_response_code(405);
+
+    echo json_encode([
+        "estado" => "error",
+        "mensaje" => "Método no permitido. Usa GET."
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+    exit;
+}
+
 try {
     $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
     $busqueda = trim($_GET["busqueda"] ?? "");
