@@ -1,48 +1,37 @@
-# Backend PHP - Gestión de usuarios y productos
+## Objetivo del proyecto
 
-Proyecto backend desarrollado con PHP, MySQL y PDO.
+Este proyecto fue desarrollado como práctica de backend con PHP para consolidar conocimientos de programación web, bases de datos, autenticación, roles, seguridad básica y operaciones CRUD.
 
-Incluye sistema de registro, login, roles, CRUD de usuarios, CRUD de productos, filtros, ordenación, paginación, dashboard y protección CSRF.
+## Capturas de pantalla
 
-## Tecnologías utilizadas
+### Login
+Aquí irá una captura del formulario de inicio de sesión.
 
-- PHP 8
-- MySQL / MariaDB
-- PDO
-- HTML
-- Git
-- XAMPP
-- phpMyAdmin
+### Panel de administración
+Aquí irá una captura del dashboard.
 
-## Funcionalidades
+### Gestión de productos
+Aquí irá una captura de la tabla con búsqueda, filtros, ordenación y paginación.
 
-- Registro de usuarios
-- Login con contraseñas cifradas
-- Sesiones
-- Roles: Administrador y Usuario
-- Panel privado
-- Dashboard de administración
-- CRUD de usuarios
-- CRUD de productos
-- Buscador de productos
-- Filtro por stock
-- Ordenación de productos
-- Paginación
-- Protección CSRF
-- Layout reutilizable con header, nav y footer
+### Gestión de usuarios
+Aquí irá una captura del CRUD de usuarios.
 
-## Instalación
+## Aprendizajes principales
 
-1. Clonar o descargar el proyecto.
+Durante el desarrollo de este proyecto se practicaron:
 
-2. Copiar la carpeta en:
-
-```text
-C:\xampp\htdocs\backend-php
-
-## Usuario de prueba
-
-Administrador:
-
-- Usuario: admin
-- Contraseña: admin123
+- Estructura básica de un proyecto PHP.
+- Conexión a MySQL con PDO.
+- Uso de consultas preparadas.
+- Gestión de sesiones.
+- Login y registro de usuarios.
+- Cifrado de contraseñas.
+- Protección de rutas.
+- Roles de usuario.
+- CRUD completo.
+- Validación de formularios.
+- Protección CSRF.
+- Refactorización con funciones reutilizables.
+- Layout reutilizable con includes.
+- Control de versiones con Git.
+- Publicación del proyecto en GitHub.
