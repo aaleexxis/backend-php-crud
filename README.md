@@ -180,15 +180,18 @@ Contraseña: admin123
 
 ### Panel privado
 
-Añadir aquí captura del dashboard de administración.
+<img width="2556" height="1600" alt="Panel Privado" src="https://github.com/user-attachments/assets/f68a17cb-048b-444e-b0d4-c62f47236ef0" />
+
 
 ### Gestión de productos
 
-Añadir aquí captura del listado de productos con búsqueda, filtros, ordenación y paginación.
+<img width="2560" height="1600" alt="Productos" src="https://github.com/user-attachments/assets/1dd88da0-6758-4b93-a0b1-ddd617aea10c" />
+
 
 ### Gestión de usuarios
 
-Añadir aquí captura del listado de usuarios.
+<img width="2556" height="1600" alt="Usuarios" src="https://github.com/user-attachments/assets/53a9b8d0-a47b-48dc-a3d4-e74acb266ef8" />
+
 
 ## Aprendizajes principales
 
