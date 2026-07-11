@@ -8,12 +8,15 @@ require_once __DIR__ . "/funciones.php";
 requerirAdministrador();
 
 $error = "";
-$mensaje = "";
 
 $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
 
 if ($id === false || $id === null || $id < 1) {
     exit("El identificador del usuario no es válido.");
+}
+
+if ($id === (int) $_SESSION["usuario_id"]) {
+    exit("No puedes eliminar tu propio usuario.");
 }
 
 $consulta = $pdo->prepare(
@@ -35,99 +38,66 @@ if (!$usuarioEncontrado) {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $csrfToken = $_POST["csrf_token"] ?? "";
-    $nuevoRol = $_POST["rol"] ?? "";
-
-    $rolesPermitidos = [
-        "Usuario",
-        "Administrador"
-    ];
 
     if (!verificarTokenCsrf($csrfToken)) {
         $error = "Solicitud no válida.";
-    } elseif (!in_array($nuevoRol, $rolesPermitidos, true)) {
-        $error = "El rol seleccionado no es válido.";
-    } elseif ($id === (int) $_SESSION["usuario_id"]) {
-        $error = "No puedes cambiar tu propio rol.";
     } else {
-        $actualizacion = $pdo->prepare(
-            "UPDATE usuarios
-             SET rol = :rol
+        $eliminacion = $pdo->prepare(
+            "DELETE FROM usuarios
              WHERE id = :id"
         );
 
-        $actualizacion->execute([
-            "rol" => $nuevoRol,
+        $eliminacion->execute([
             "id" => $id
         ]);
 
-        $usuarioEncontrado["rol"] = $nuevoRol;
-        $mensaje = "El rol se ha actualizado correctamente.";
+        header("Location: usuarios.php");
+        exit;
     }
 }
 
 $nombreSeguro = e($usuarioEncontrado["usuario"]);
+$rolSeguro = e($usuarioEncontrado["rol"]);
+
+$titulo = "Eliminar usuario";
+
+require_once __DIR__ . "/includes/header.php";
+require_once __DIR__ . "/includes/nav.php";
 
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar usuario</title>
-</head>
+<h1>Eliminar usuario</h1>
 
-<body>
+<p>
+    ¿Seguro que quieres eliminar este usuario?
+</p>
 
-    <h1>Editar usuario</h1>
+<p>
+    Usuario: <strong><?php echo $nombreSeguro; ?></strong>
+</p>
 
-    <p>
-        Usuario: <strong><?php echo $nombreSeguro; ?></strong>
-    </p>
+<p>
+    Rol: <?php echo $rolSeguro; ?>
+</p>
 
-    <?php if ($error !== "") { ?>
-        <p><?php echo e($error); ?></p>
-    <?php } ?>
+<?php if ($error !== "") { ?>
+    <p><?php echo e($error); ?></p>
+<?php } ?>
 
-    <?php if ($mensaje !== "") { ?>
-        <p><?php echo e($mensaje); ?></p>
-    <?php } ?>
+<form method="POST">
 
-    <form method="POST">
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="<?php echo e(generarTokenCsrf()); ?>"
+    >
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?php echo e(generarTokenCsrf()); ?>"
-        >
+    <button type="submit">Sí, eliminar</button>
 
-        <label for="rol">Rol:</label>
+</form>
 
-        <select id="rol" name="rol" required>
+<p>
+    <a href="usuarios.php">Cancelar</a>
+</p>
 
-            <option
-                value="Usuario"
-                <?php if ($usuarioEncontrado["rol"] === "Usuario") { echo "selected"; } ?>
-            >
-                Usuario
-            </option>
-
-            <option
-                value="Administrador"
-                <?php if ($usuarioEncontrado["rol"] === "Administrador") { echo "selected"; } ?>
-            >
-                Administrador
-            </option>
-
-        </select>
-
-        <button type="submit">Guardar cambios</button>
-
-    </form>
-
-    <p>
-        <a href="usuarios.php">Volver al listado</a>
-    </p>
-
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>

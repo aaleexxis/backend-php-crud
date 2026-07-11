@@ -57,58 +57,53 @@ $descripcionSegura = e($producto["descripcion"] ?? "");
 $precioSeguro = number_format((float) $producto["precio"], 2);
 $stockSeguro = (int) $producto["stock"];
 
+$titulo = "Eliminar producto";
+
+require_once __DIR__ . "/includes/header.php";
+require_once __DIR__ . "/includes/nav.php";
+
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eliminar producto</title>
-</head>
-<body>
+<h1>Eliminar producto</h1>
 
-    <h1>Eliminar producto</h1>
+<p>
+    ¿Seguro que quieres eliminar este producto?
+</p>
 
-    <p>
-        ¿Seguro que quieres eliminar este producto?
-    </p>
+<p>
+    Producto: <strong><?php echo $nombreSeguro; ?></strong>
+</p>
 
-    <p>
-        Producto: <strong><?php echo $nombreSeguro; ?></strong>
-    </p>
+<p>
+    Descripción: <?php echo $descripcionSegura; ?>
+</p>
 
-    <p>
-        Descripción: <?php echo $descripcionSegura; ?>
-    </p>
+<p>
+    Precio: <?php echo $precioSeguro; ?> €
+</p>
 
-    <p>
-        Precio: <?php echo $precioSeguro; ?> €
-    </p>
+<p>
+    Stock: <?php echo $stockSeguro; ?>
+</p>
 
-    <p>
-        Stock: <?php echo $stockSeguro; ?>
-    </p>
+<?php if ($error !== "") { ?>
+    <p><?php echo e($error); ?></p>
+<?php } ?>
 
-    <?php if ($error !== "") { ?>
-        <p><?php echo e($error); ?></p>
-    <?php } ?>
+<form method="POST">
 
-    <form method="POST">
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="<?php echo e(generarTokenCsrf()); ?>"
+    >
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?php echo e(generarTokenCsrf()); ?>"
-        >
+    <button type="submit">Sí, eliminar</button>
 
-        <button type="submit">Sí, eliminar</button>
+</form>
 
-    </form>
+<p>
+    <a href="productos.php">Cancelar</a>
+</p>
 
-    <p>
-        <a href="productos.php">Cancelar</a>
-    </p>
-
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>

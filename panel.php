@@ -43,68 +43,49 @@ if (esAdministrador()) {
     $valorInventario = (float) $consultaValor->fetchColumn();
 }
 
+$titulo = "Panel privado";
+
+require_once __DIR__ . "/includes/header.php";
+require_once __DIR__ . "/includes/nav.php";
+
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel privado</title>
-</head>
-<body>
+<h1>Panel privado</h1>
 
-    <h1>Panel privado</h1>
+<p>
+    Bienvenido, <?php echo $usuarioSeguro; ?>.
+</p>
 
-    <p>
-        Bienvenido, <?php echo $usuarioSeguro; ?>.
-    </p>
+<p>
+    Tu rol es: <?php echo $rolSeguro; ?>.
+</p>
 
-    <p>
-        Tu rol es: <?php echo $rolSeguro; ?>.
-    </p>
+<?php if (esAdministrador()) { ?>
 
-    <?php if (esAdministrador()) { ?>
+    <h2>Dashboard</h2>
 
-        <h2>Dashboard</h2>
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Total de usuarios</th>
+            <td><?php echo $totalUsuarios; ?></td>
+        </tr>
 
-        <table border="1" cellpadding="8">
-            <tr>
-                <th>Total de usuarios</th>
-                <td><?php echo $totalUsuarios; ?></td>
-            </tr>
+        <tr>
+            <th>Total de productos</th>
+            <td><?php echo $totalProductos; ?></td>
+        </tr>
 
-            <tr>
-                <th>Total de productos</th>
-                <td><?php echo $totalProductos; ?></td>
-            </tr>
+        <tr>
+            <th>Productos agotados</th>
+            <td><?php echo $productosAgotados; ?></td>
+        </tr>
 
-            <tr>
-                <th>Productos agotados</th>
-                <td><?php echo $productosAgotados; ?></td>
-            </tr>
+        <tr>
+            <th>Valor total del inventario</th>
+            <td><?php echo number_format($valorInventario, 2); ?> €</td>
+        </tr>
+    </table>
 
-            <tr>
-                <th>Valor total del inventario</th>
-                <td><?php echo number_format($valorInventario, 2); ?> €</td>
-            </tr>
-        </table>
+<?php } ?>
 
-        <h2>Gestión</h2>
-
-        <p>
-            <a href="usuarios.php">Gestionar usuarios</a>
-        </p>
-
-        <p>
-            <a href="productos.php">Gestionar productos</a>
-        </p>
-
-    <?php } ?>
-
-    <p>
-        <a href="logout.php">Cerrar sesión</a>
-    </p>
-
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>

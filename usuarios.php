@@ -15,88 +15,79 @@ $consulta = $pdo->query(
 
 $usuarios = $consulta->fetchAll();
 
+$titulo = "Gestión de usuarios";
+
+require_once __DIR__ . "/includes/header.php";
+require_once __DIR__ . "/includes/nav.php";
+
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de usuarios</title>
-</head>
-<body>
+<h1>Usuarios registrados</h1>
 
-    <h1>Usuarios registrados</h1>
+<?php if (count($usuarios) === 0) { ?>
 
-    <p>
-        <a href="panel.php">Volver al panel</a>
-    </p>
+    <p>No hay usuarios registrados.</p>
 
-    <?php if (count($usuarios) === 0) { ?>
+<?php } else { ?>
 
-        <p>No hay usuarios registrados.</p>
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Fecha de registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
 
-    <?php } else { ?>
+        <tbody>
 
-        <table border="1" cellpadding="8">
-            <thead>
+            <?php foreach ($usuarios as $usuario) { ?>
+
                 <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Rol</th>
-                    <th>Fecha de registro</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
+                    <td>
+                        <?php echo (int) $usuario["id"]; ?>
+                    </td>
 
-            <tbody>
+                    <td>
+                        <?php echo e($usuario["usuario"]); ?>
+                    </td>
 
-                <?php foreach ($usuarios as $usuario) { ?>
+                    <td>
+                        <?php echo e($usuario["rol"]); ?>
+                    </td>
 
-                    <tr>
-                        <td>
-                            <?php echo (int) $usuario["id"]; ?>
-                        </td>
+                    <td>
+                        <?php echo e($usuario["creado_en"]); ?>
+                    </td>
 
-                        <td>
-                            <?php echo e($usuario["usuario"]); ?>
-                        </td>
+                    <td>
+                        <a href="editar_usuario.php?id=<?php echo (int) $usuario["id"]; ?>">
+                            Editar
+                        </a>
 
-                        <td>
-                            <?php echo e($usuario["rol"]); ?>
-                        </td>
+                        |
 
-                        <td>
-                            <?php echo e($usuario["creado_en"]); ?>
-                        </td>
+                        <?php if ((int) $usuario["id"] !== (int) $_SESSION["usuario_id"]) { ?>
 
-                        <td>
-                            <a href="editar_usuario.php?id=<?php echo (int) $usuario["id"]; ?>">
-                                Editar
+                            <a href="eliminar_usuario.php?id=<?php echo (int) $usuario["id"]; ?>">
+                                Eliminar
                             </a>
 
-                            |
+                        <?php } else { ?>
 
-                            <?php if ((int) $usuario["id"] !== (int) $_SESSION["usuario_id"]) { ?>
+                            No puedes eliminarte
 
-                                <a href="eliminar_usuario.php?id=<?php echo (int) $usuario["id"]; ?>">
-                                    Eliminar
-                                </a>
+                        <?php } ?>
+                    </td>
+                </tr>
 
-                            <?php } else { ?>
+            <?php } ?>
 
-                                No puedes eliminarte
+        </tbody>
+    </table>
 
-                            <?php } ?>
-                        </td>
-                    </tr>
+<?php } ?>
 
-                <?php } ?>
-
-            </tbody>
-        </table>
-
-    <?php } ?>
-
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>

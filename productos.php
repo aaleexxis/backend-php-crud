@@ -33,6 +33,7 @@ if ($filtroStock === "disponibles") {
 } elseif ($filtroStock === "agotados") {
     $condiciones[] = "stock = 0";
 }
+
 $sqlConteo = "SELECT COUNT(*) FROM productos";
 
 if (count($condiciones) > 0) {
@@ -43,7 +44,6 @@ $consultaConteo = $pdo->prepare($sqlConteo);
 $consultaConteo->execute($parametros);
 
 $totalProductos = (int) $consultaConteo->fetchColumn();
-
 $totalPaginas = (int) ceil($totalProductos / $porPagina);
 
 if ($totalPaginas < 1) {
@@ -91,173 +91,153 @@ $consulta->execute($parametros);
 
 $productos = $consulta->fetchAll();
 
+$titulo = "Gestión de productos";
+
+require_once __DIR__ . "/includes/header.php";
+require_once __DIR__ . "/includes/nav.php";
+
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de productos</title>
-</head>
-<body>
+<h1>Productos</h1>
 
-    <h1>Productos</h1>
+<form method="GET">
 
-    <form method="GET">
+    <label for="busqueda">Buscar producto:</label>
 
-        <label for="busqueda">Buscar producto:</label>
+    <input
+        type="text"
+        id="busqueda"
+        name="busqueda"
+        value="<?php echo e($busqueda); ?>"
+        placeholder="Ejemplo: teclado"
+    >
 
-        <input
-            type="text"
-            id="busqueda"
-            name="busqueda"
-            value="<?php echo e($busqueda); ?>"
-            placeholder="Ejemplo: teclado"
+    <label for="stock">Stock:</label>
+
+    <select id="stock" name="stock">
+        <option value="">Todos</option>
+
+        <option
+            value="disponibles"
+            <?php if ($filtroStock === "disponibles") { echo "selected"; } ?>
         >
+            Disponibles
+        </option>
 
-        <label for="stock">Stock:</label>
+        <option
+            value="agotados"
+            <?php if ($filtroStock === "agotados") { echo "selected"; } ?>
+        >
+            Agotados
+        </option>
+    </select>
 
-        <select id="stock" name="stock">
-            <option value="">Todos</option>
+    <label for="orden">Ordenar por:</label>
 
-            <option
-                value="disponibles"
-                <?php if ($filtroStock === "disponibles") { echo "selected"; } ?>
-            >
-                Disponibles
-            </option>
+    <select id="orden" name="orden">
+        <option
+            value="recientes"
+            <?php if ($orden === "recientes") { echo "selected"; } ?>
+        >
+            Más recientes
+        </option>
 
-            <option
-                value="agotados"
-                <?php if ($filtroStock === "agotados") { echo "selected"; } ?>
-            >
-                Agotados
-            </option>
-        </select>
+        <option
+            value="nombre_asc"
+            <?php if ($orden === "nombre_asc") { echo "selected"; } ?>
+        >
+            Nombre A-Z
+        </option>
 
-        <label for="orden">Ordenar por:</label>
+        <option
+            value="precio_asc"
+            <?php if ($orden === "precio_asc") { echo "selected"; } ?>
+        >
+            Precio menor a mayor
+        </option>
 
-<select id="orden" name="orden">
-    <option
-        value="recientes"
-        <?php if ($orden === "recientes") { echo "selected"; } ?>
-    >
-        Más recientes
-    </option>
+        <option
+            value="precio_desc"
+            <?php if ($orden === "precio_desc") { echo "selected"; } ?>
+        >
+            Precio mayor a menor
+        </option>
 
-    <option
-        value="nombre_asc"
-        <?php if ($orden === "nombre_asc") { echo "selected"; } ?>
-    >
-        Nombre A-Z
-    </option>
+        <option
+            value="stock_desc"
+            <?php if ($orden === "stock_desc") { echo "selected"; } ?>
+        >
+            Más stock
+        </option>
+    </select>
 
-    <option
-        value="precio_asc"
-        <?php if ($orden === "precio_asc") { echo "selected"; } ?>
-    >
-        Precio menor a mayor
-    </option>
+    <button type="submit">Filtrar</button>
 
-    <option
-        value="precio_desc"
-        <?php if ($orden === "precio_desc") { echo "selected"; } ?>
-    >
-        Precio mayor a menor
-    </option>
+    <a href="productos.php">Limpiar</a>
 
-    <option
-        value="stock_desc"
-        <?php if ($orden === "stock_desc") { echo "selected"; } ?>
-    >
-        Más stock
-    </option>
-</select>
+</form>
 
-        <button type="submit">Filtrar</button>
+<br>
 
-        <a href="productos.php">Limpiar</a>
+<p>
+    <a href="crear_producto.php">Crear producto</a>
+</p>
 
-    </form>
+<?php if (count($productos) === 0) { ?>
 
-    <br>
+    <p>No hay productos registrados.</p>
 
-    <p>
-        <a href="panel.php">Volver al panel</a>
-    </p>
+<?php } else { ?>
 
-    <p>
-        <a href="crear_producto.php">Crear producto</a>
-    </p>
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Fecha de creación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
 
-    <?php if (count($productos) === 0) { ?>
+        <tbody>
 
-        <p>No hay productos registrados.</p>
+            <?php foreach ($productos as $producto) { ?>
 
-    <?php } else { ?>
-
-        <table border="1" cellpadding="8">
-            <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Fecha de creación</th>
-                    <th>Acciones</th>
+                    <td><?php echo (int) $producto["id"]; ?></td>
+
+                    <td><?php echo e($producto["nombre"]); ?></td>
+
+                    <td><?php echo e($producto["descripcion"] ?? ""); ?></td>
+
+                    <td>
+                        <?php echo number_format((float) $producto["precio"], 2); ?> €
+                    </td>
+
+                    <td><?php echo (int) $producto["stock"]; ?></td>
+
+                    <td><?php echo e($producto["creado_en"]); ?></td>
+
+                    <td>
+                        <a href="editar_producto.php?id=<?php echo (int) $producto["id"]; ?>">
+                            Editar
+                        </a>
+
+                        |
+
+                        <a href="eliminar_producto.php?id=<?php echo (int) $producto["id"]; ?>">
+                            Eliminar
+                        </a>
+                    </td>
                 </tr>
-            </thead>
 
-            <tbody>
+            <?php } ?>
 
-                <?php foreach ($productos as $producto) { ?>
-
-                    <tr>
-
-                        <td>
-                            <?php echo (int) $producto["id"]; ?>
-                        </td>
-
-                        <td>
-                            <?php echo e($producto["nombre"]); ?>
-                        </td>
-
-                        <td>
-                            <?php echo e($producto["descripcion"] ?? ""); ?>
-                        </td>
-
-                        <td>
-                            <?php echo number_format((float) $producto["precio"], 2); ?> €
-                        </td>
-
-                        <td>
-                            <?php echo (int) $producto["stock"]; ?>
-                        </td>
-
-                        <td>
-                            <?php echo e($producto["creado_en"]); ?>
-                        </td>
-
-                        <td>
-                            <a href="editar_producto.php?id=<?php echo (int) $producto["id"]; ?>">
-                                Editar
-                            </a>
-
-                            |
-
-                            <a href="eliminar_producto.php?id=<?php echo (int) $producto["id"]; ?>">
-                                Eliminar
-                            </a>
-                        </td>
-
-                    </tr>
-
-                <?php } ?>
-
-            </tbody>
-        </table>
+        </tbody>
+    </table>
 
     <?php if ($totalPaginas > 1) { ?>
 
@@ -288,7 +268,6 @@ $productos = $consulta->fetchAll();
 
     <?php } ?>
 
-    <?php } ?>
+<?php } ?>
 
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>

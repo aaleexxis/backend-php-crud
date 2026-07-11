@@ -67,67 +67,59 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 $nombreSeguro = e($usuarioEncontrado["usuario"]);
 
+$titulo = "Editar usuario";
+
+require_once __DIR__ . "/includes/header.php";
+require_once __DIR__ . "/includes/nav.php";
+
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar usuario</title>
-</head>
+<h1>Editar usuario</h1>
 
-<body>
+<p>
+    Usuario: <strong><?php echo $nombreSeguro; ?></strong>
+</p>
 
-    <h1>Editar usuario</h1>
+<?php if ($error !== "") { ?>
+    <p><?php echo e($error); ?></p>
+<?php } ?>
 
-    <p>
-        Usuario: <strong><?php echo $nombreSeguro; ?></strong>
-    </p>
+<?php if ($mensaje !== "") { ?>
+    <p><?php echo e($mensaje); ?></p>
+<?php } ?>
 
-    <?php if ($error !== "") { ?>
-        <p><?php echo e($error); ?></p>
-    <?php } ?>
+<form method="POST">
 
-    <?php if ($mensaje !== "") { ?>
-        <p><?php echo e($mensaje); ?></p>
-    <?php } ?>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="<?php echo e(generarTokenCsrf()); ?>"
+    >
 
-    <form method="POST">
+    <label for="rol">Rol:</label>
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?php echo e(generarTokenCsrf()); ?>"
+    <select id="rol" name="rol" required>
+        <option
+            value="Usuario"
+            <?php if ($usuarioEncontrado["rol"] === "Usuario") { echo "selected"; } ?>
         >
+            Usuario
+        </option>
 
-        <label for="rol">Rol:</label>
+        <option
+            value="Administrador"
+            <?php if ($usuarioEncontrado["rol"] === "Administrador") { echo "selected"; } ?>
+        >
+            Administrador
+        </option>
+    </select>
 
-        <select id="rol" name="rol" required>
+    <button type="submit">Guardar cambios</button>
 
-            <option
-                value="Usuario"
-                <?php if ($usuarioEncontrado["rol"] === "Usuario") { echo "selected"; } ?>
-            >
-                Usuario
-            </option>
+</form>
 
-            <option
-                value="Administrador"
-                <?php if ($usuarioEncontrado["rol"] === "Administrador") { echo "selected"; } ?>
-            >
-                Administrador
-            </option>
+<p>
+    <a href="usuarios.php">Volver al listado</a>
+</p>
 
-        </select>
-
-        <button type="submit">Guardar cambios</button>
-
-    </form>
-
-    <p>
-        <a href="usuarios.php">Volver al listado</a>
-    </p>
-
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>
