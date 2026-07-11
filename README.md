@@ -2,7 +2,7 @@
 
 Proyecto backend desarrollado con **PHP, MySQL y PDO** como práctica de desarrollo web orientada a un perfil **junior backend**.
 
-Este proyecto ha sido creado por un estudiante de **Ingeniería Informática** con el objetivo de consolidar conocimientos fundamentales de programación web, bases de datos, autenticación, roles, seguridad básica y operaciones CRUD.
+Este proyecto ha sido creado por un estudiante de **Ingeniería Informática** con el objetivo de consolidar conocimientos fundamentales de programación web, bases de datos, autenticación, roles, seguridad básica, operaciones CRUD y creación de una API básica.
 
 ## Descripción del proyecto
 
@@ -10,7 +10,7 @@ La aplicación permite gestionar usuarios y productos mediante un sistema de aut
 
 Incluye un panel privado donde los usuarios pueden iniciar sesión y, en el caso del administrador, acceder a un dashboard con estadísticas y a la gestión completa de usuarios y productos.
 
-El proyecto está desarrollado sin frameworks, utilizando PHP puro, para comprender mejor cómo funcionan internamente conceptos como sesiones, conexión a base de datos, consultas preparadas, validación de formularios y protección de rutas.
+El proyecto está desarrollado sin frameworks, utilizando PHP puro, para comprender mejor cómo funcionan internamente conceptos como sesiones, conexión a base de datos, consultas preparadas, validación de formularios, protección de rutas y respuestas JSON mediante API.
 
 ## Tecnologías utilizadas
 
@@ -18,6 +18,7 @@ El proyecto está desarrollado sin frameworks, utilizando PHP puro, para compren
 * MySQL / MariaDB
 * PDO
 * HTML
+* CSS
 * Git
 * GitHub
 * XAMPP
@@ -34,7 +35,6 @@ El proyecto está desarrollado sin frameworks, utilizando PHP puro, para compren
 * Verificación de contraseñas con `password_verify()`.
 * Gestión de sesiones.
 * Roles de usuario:
-
   * Administrador
   * Usuario
 * Protección de páginas privadas.
@@ -63,12 +63,10 @@ El proyecto está desarrollado sin frameworks, utilizando PHP puro, para compren
 * Eliminación de productos.
 * Buscador por nombre.
 * Filtro por stock:
-
   * Todos
   * Disponibles
   * Agotados
 * Ordenación por:
-
   * Más recientes
   * Nombre A-Z
   * Precio menor a mayor
@@ -86,11 +84,68 @@ El proyecto está desarrollado sin frameworks, utilizando PHP puro, para compren
 * Validación de formularios.
 * Control de acceso por sesión.
 * Control de acceso por rol.
+* Configuración sensible separada mediante archivo `.env`.
+
+## API REST
+
+El proyecto incluye una API básica para consultar productos en formato JSON.
+
+### Obtener todos los productos
+
+```http
+GET /backend-php/api/productos.php
+```
+
+Ejemplo en local:
+
+```text
+http://localhost/backend-php/api/productos.php
+```
+
+Respuesta esperada:
+
+```json
+{
+    "estado": "ok",
+    "total": 3,
+    "productos": [
+        {
+            "id": 1,
+            "nombre": "Teclado mecánico",
+            "descripcion": "Teclado gaming con switches mecánicos",
+            "precio": "49.99",
+            "stock": 10,
+            "creado_en": "2026-07-..."
+        }
+    ]
+}
+```
+
+### Buscar productos por nombre
+
+```http
+GET /backend-php/api/productos.php?busqueda=teclado
+```
+
+Ejemplo en local:
+
+```text
+http://localhost/backend-php/api/productos.php?busqueda=teclado
+```
+
+Esta ruta devuelve los productos cuyo nombre coincida con la búsqueda indicada.
 
 ## Estructura del proyecto
 
 ```text
 backend-php/
+│
+├── api/
+│   └── productos.php
+│
+├── assets/
+│   └── css/
+│       └── styles.css
 │
 ├── includes/
 │   ├── header.php
@@ -115,6 +170,7 @@ backend-php/
 ├── eliminar_producto.php
 │
 ├── database.sql
+├── .env.example
 ├── .gitignore
 └── README.md
 ```
@@ -141,22 +197,30 @@ C:\xampp\htdocs\backend-php
 http://localhost/phpmyadmin
 ```
 
-5. Importar el archivo:
+5. Crear la base de datos:
+
+```text
+backend_php
+```
+
+6. Importar el archivo:
 
 ```text
 database.sql
 ```
 
-6. Revisar la configuración de conexión en `conexion.php`:
+7. Crear un archivo `.env` en la raíz del proyecto tomando como referencia `.env.example`.
 
-```php
-$host = "localhost";
-$baseDatos = "backend_php";
-$usuarioBD = "root";
-$contrasenaBD = "";
+Contenido esperado:
+
+```env
+DB_HOST=localhost
+DB_NAME=backend_php
+DB_USER=root
+DB_PASS=
 ```
 
-7. Abrir el proyecto en el navegador:
+8. Abrir el proyecto en el navegador:
 
 ```text
 http://localhost/backend-php/
@@ -177,21 +241,17 @@ Contraseña: admin123
 
 <img width="2560" height="1600" alt="Login" src="https://github.com/user-attachments/assets/d5b26c52-6f39-4b19-a4fb-5c0aacb87b74" />
 
-
 ### Panel privado
 
 <img width="2556" height="1600" alt="Panel Privado" src="https://github.com/user-attachments/assets/f68a17cb-048b-444e-b0d4-c62f47236ef0" />
-
 
 ### Gestión de productos
 
 <img width="2560" height="1600" alt="Productos" src="https://github.com/user-attachments/assets/1dd88da0-6758-4b93-a0b1-ddd617aea10c" />
 
-
 ### Gestión de usuarios
 
 <img width="2556" height="1600" alt="Usuarios" src="https://github.com/user-attachments/assets/53a9b8d0-a47b-48dc-a3d4-e74acb266ef8" />
-
 
 ## Aprendizajes principales
 
@@ -211,6 +271,8 @@ Durante el desarrollo de este proyecto se han trabajado los siguientes conceptos
 * Protección CSRF.
 * Escape de datos para prevenir XSS.
 * Búsqueda, filtros, ordenación y paginación.
+* Creación de una API básica en JSON.
+* Uso de archivo `.env` para configuración local.
 * Control de versiones con Git.
 * Publicación del proyecto en GitHub.
 
@@ -224,9 +286,9 @@ Proyecto en desarrollo y mejora continua.
 
 Próximas posibles mejoras:
 
-* Añadir estilos con CSS.
-* Crear un diseño responsive.
-* Separar configuración sensible en un archivo `.env`.
+* Crear un diseño responsive más avanzado.
 * Añadir subida de imágenes para productos.
+* Añadir endpoints adicionales a la API REST.
+* Permitir consultar productos por ID desde la API.
 * Añadir tests básicos.
 * Migrar el proyecto progresivamente a Laravel.
