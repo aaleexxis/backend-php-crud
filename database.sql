@@ -20,3 +20,10 @@ CREATE TABLE IF NOT EXISTS productos (
     stock INT UNSIGNED NOT NULL DEFAULT 0,
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO usuarios (usuario, password_hash, rol)
+VALUES (
+    'admin',
+    '$2y$10$pGDk9pZnobYbGi3QnCT44uv4LU/sEudr4MWAbTotYCW9VYhbLfu3y',
+    'Administrador'
+);

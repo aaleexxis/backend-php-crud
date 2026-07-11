@@ -39,3 +39,10 @@ Incluye sistema de registro, login, roles, CRUD de usuarios, CRUD de productos, 
 
 ```text
 C:\xampp\htdocs\backend-php
+
+## Usuario de prueba
+
+Administrador:
+
+- Usuario: admin
+- Contraseña: admin123
