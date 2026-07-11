@@ -135,6 +135,43 @@ http://localhost/backend-php/api/productos.php?busqueda=teclado
 
 Esta ruta devuelve los productos cuyo nombre coincida con la búsqueda indicada.
 
+### Obtener un producto por ID
+
+```http
+GET /backend-php/api/productos.php?id=1
+```
+
+Ejemplo en local:
+
+```text
+http://localhost/backend-php/api/productos.php?id=1
+```
+
+Respuesta esperada:
+
+```json
+{
+    "estado": "ok",
+    "producto": {
+        "id": 1,
+        "nombre": "Teclado mecánico",
+        "descripcion": "Teclado gaming con switches mecánicos",
+        "precio": "49.99",
+        "stock": 10,
+        "creado_en": "2026-07-..."
+    }
+}
+```
+
+Si el producto no existe, la API devuelve un error 404:
+
+```json
+{
+    "estado": "error",
+    "mensaje": "Producto no encontrado."
+}
+```
+
 ## Estructura del proyecto
 
 ```text
