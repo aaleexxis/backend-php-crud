@@ -1,6 +1,14 @@
 <?php
 
+session_start();
+
 require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/funciones.php";
+
+if (estaLogueado()) {
+    header("Location: panel.php");
+    exit;
+}
 
 $error = "";
 $usuario = "";
@@ -33,10 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($consulta->fetch()) {
             $error = "Ese nombre de usuario ya está registrado.";
         } else {
-            $hash = password_hash(
-                $contrasena,
-                PASSWORD_DEFAULT
-            );
+            $hash = password_hash($contrasena, PASSWORD_DEFAULT);
 
             $insercion = $pdo->prepare(
                 "INSERT INTO usuarios (
@@ -62,80 +67,68 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
+$titulo = "Crear cuenta";
+
+require_once __DIR__ . "/includes/header.php";
+
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Crear una cuenta</title>
-</head>
-<body>
+<h1>Crear cuenta</h1>
 
-    <h1>Crear una cuenta</h1>
+<?php if ($error !== "") { ?>
+    <p class="alert"><?php echo e($error); ?></p>
+<?php } ?>
 
-    <form method="POST">
+<form method="POST">
 
-        <label for="usuario">Usuario:</label>
+    <label for="usuario">Usuario:</label>
 
-        <input
-            type="text"
-            id="usuario"
-            name="usuario"
-            value="<?php echo htmlspecialchars(
-                $usuario,
-                ENT_QUOTES,
-                "UTF-8"
-            ); ?>"
-            minlength="3"
-            maxlength="50"
-            required
-        >
+    <input
+        type="text"
+        id="usuario"
+        name="usuario"
+        value="<?php echo e($usuario); ?>"
+        minlength="3"
+        maxlength="50"
+        autocomplete="username"
+        required
+    >
 
-        <br><br>
+    <br><br>
 
-        <label for="contrasena">Contraseña:</label>
+    <label for="contrasena">Contraseña:</label>
 
-        <input
-            type="password"
-            id="contrasena"
-            name="contrasena"
-            minlength="6"
-            required
-        >
+    <input
+        type="password"
+        id="contrasena"
+        name="contrasena"
+        minlength="6"
+        autocomplete="new-password"
+        required
+    >
 
-        <br><br>
+    <br><br>
 
-        <label for="confirmacion">Repite la contraseña:</label>
+    <label for="confirmacion">Repite la contraseña:</label>
 
-        <input
-            type="password"
-            id="confirmacion"
-            name="confirmacion"
-            minlength="6"
-            required
-        >
+    <input
+        type="password"
+        id="confirmacion"
+        name="confirmacion"
+        minlength="6"
+        autocomplete="new-password"
+        required
+    >
 
-        <br><br>
+    <br><br>
 
-        <button type="submit">Registrarse</button>
+    <button type="submit">Registrarse</button>
 
-    </form>
+</form>
 
-    <?php if ($error !== "") { ?>
-        <p>
-            <?php echo htmlspecialchars(
-                $error,
-                ENT_QUOTES,
-                "UTF-8"
-            ); ?>
-        </p>
-    <?php } ?>
+<p>
+    ¿Ya tienes una cuenta?
+    <a href="login.php">Inicia sesión</a>
+</p>
 
-    <p>
-        ¿Ya tienes una cuenta?
-        <a href="login.php">Inicia sesión</a>
-    </p>
-
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>

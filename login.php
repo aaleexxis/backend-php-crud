@@ -3,17 +3,21 @@
 session_start();
 
 require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/funciones.php";
+
+if (estaLogueado()) {
+    header("Location: panel.php");
+    exit;
+}
 
 $error = "";
 $mensaje = "";
 $usuario = "";
 
-// Mensaje recibido después de completar el registro.
 if (($_GET["registro"] ?? "") === "correcto") {
     $mensaje = "Registro completado. Ya puedes iniciar sesión.";
 }
 
-// Procesar el formulario.
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $usuario = trim($_POST["usuario"] ?? "");
     $contrasena = $_POST["contrasena"] ?? "";
@@ -41,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $usuarioEncontrado["password_hash"]
             )
         ) {
-            // Cambia el identificador de sesión después del login.
             session_regenerate_id(true);
 
             $_SESSION["usuario_id"] = $usuarioEncontrado["id"];
@@ -56,83 +59,56 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
+$titulo = "Iniciar sesión";
+
+require_once __DIR__ . "/includes/header.php";
+
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Inicio de sesión</title>
-</head>
+<h1>Iniciar sesión</h1>
 
-<body>
+<?php if ($error !== "") { ?>
+    <p class="alert"><?php echo e($error); ?></p>
+<?php } ?>
 
-    <h1>Iniciar sesión</h1>
+<?php if ($mensaje !== "") { ?>
+    <p class="success"><?php echo e($mensaje); ?></p>
+<?php } ?>
 
-    <form method="POST">
+<form method="POST">
 
-        <label for="usuario">Usuario:</label>
+    <label for="usuario">Usuario:</label>
 
-        <input
-            type="text"
-            id="usuario"
-            name="usuario"
-            value="<?php echo htmlspecialchars(
-                $usuario,
-                ENT_QUOTES,
-                "UTF-8"
-            ); ?>"
-            autocomplete="username"
-            required
-        >
+    <input
+        type="text"
+        id="usuario"
+        name="usuario"
+        value="<?php echo e($usuario); ?>"
+        autocomplete="username"
+        required
+    >
 
-        <br><br>
+    <br><br>
 
-        <label for="contrasena">Contraseña:</label>
+    <label for="contrasena">Contraseña:</label>
 
-        <input
-            type="password"
-            id="contrasena"
-            name="contrasena"
-            autocomplete="current-password"
-            required
-        >
+    <input
+        type="password"
+        id="contrasena"
+        name="contrasena"
+        autocomplete="current-password"
+        required
+    >
 
-        <br><br>
+    <br><br>
 
-        <button type="submit">Entrar</button>
+    <button type="submit">Entrar</button>
 
-    </form>
+</form>
 
-    <?php if ($error !== "") { ?>
-        <p>
-            <?php
-            echo htmlspecialchars(
-                $error,
-                ENT_QUOTES,
-                "UTF-8"
-            );
-            ?>
-        </p>
-    <?php } ?>
+<p>
+    ¿No tienes una cuenta?
+    <a href="registro.php">Regístrate</a>
+</p>
 
-    <?php if ($mensaje !== "") { ?>
-        <p>
-            <?php
-            echo htmlspecialchars(
-                $mensaje,
-                ENT_QUOTES,
-                "UTF-8"
-            );
-            ?>
-        </p>
-    <?php } ?>
-
-    <p>
-        ¿No tienes una cuenta?
-        <a href="registro.php">Regístrate</a>
-    </p>
-
-</body>
-</html>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>
